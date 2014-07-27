@@ -11,6 +11,17 @@ from wtforms import BooleanField
 from pkg_resources import iter_entry_points
 
 
+def forEach(iterable, callback):
+    result = []
+    for row in iterable:
+        if not isinstance(row, (tuple, list)):
+            row = (row, )
+
+        result.append(callback(*row))
+
+    return result
+
+
 class FormRenderer(object):
     def __init__(self):
         self.buttons = []
@@ -87,10 +98,9 @@ class FormRenderer(object):
         formHtml = (
             T.form(class_="form-horizontal", method='POST')[
 
-                [
+                forEach(form, lambda field: (
                     self.renderField(field)
-                    for field in form
-                ],
+                )),
 
                 T.div(class_="form-group")[
                     T.div(class_="col-sm-offset-3 col-sm-9")[
@@ -148,12 +158,11 @@ class HtmlLayout(object):
         )
 
         mainNavigation = lambda: (
-            [
+            forEach(self.modules, lambda mod: (
                 T.li(class_='active' if currentEndpoint in mod.endpoints else None)[
                     T.a(href=url.build(mod.pages[0].endpoint))[mod.name]
                 ]
-                for mod in self.modules
-            ]
+            ))
         )
 
         html = (
@@ -210,7 +219,8 @@ class HtmlLayout(object):
                     T.li(class_='active' if currentEndpoint == page.endpoint else None)[
                         T.a(href=page.url)[page.name]
                     ]
-                    for page in currentModule.publicPages]
+                    for page in currentModule.publicPages
+                ]
             ]
         )
 

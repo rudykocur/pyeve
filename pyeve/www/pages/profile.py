@@ -2,7 +2,7 @@ from breve.tags.html import tags as T
 from wtforms import Form, StringField
 
 from pyeve.www.core import Page, UIModuleDescriptior
-from pyeve.www.html import HtmlLayout, FormRenderer
+from pyeve.www.html import HtmlLayout, FormRenderer, forEach
 
 __author__ = 'Rudy'
 
@@ -57,7 +57,7 @@ class APIKeys(Page):
                         ]
                     ],
                     T.tbody[
-                        [
+                        forEach(keys, lambda keyId, expires, characters: (
                             T.tr[
                                 T.td[keyId],
                                 T.td[expires],
@@ -77,8 +77,7 @@ class APIKeys(Page):
                                         **{'data-placement': 'top', 'data-toggle': 'tooltip'}),
                                 ]
                             ]
-                            for keyId, expires, characters in keys
-                        ]
+                        )),
                     ]
                 ]
             ]
