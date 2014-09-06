@@ -1,6 +1,7 @@
 __author__ = 'Rudy'
 
 from collections import namedtuple
+import json
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -15,14 +16,21 @@ from breve.tags.html import tags as T
 ModulePageInfo = namedtuple('ModulePageInfo', ['endpoint', 'url', 'name', 'clazzFactory'])
 
 
+class JsonResponse(Response):
+    def __init__(self, data):
+        super().__init__(json.dumps(data), mimetype='application/json')
+
+
 class UIModuleDescriptior(object):
-    def __init__(self, name, root):
+    def __init__(self, name, root, private=False):
         self.name = name
         self.root = root
         #: :type: list of pyeve.www.core.ModulePageInfo
         self.pages = []
         #: :type: list of pyeve.www.core.ModulePageInfo
         self.internalPages = []
+
+        self.private = private
 
     def addPage(self, endpoint, classFactory, name=None):
         self.pages.append(ModulePageInfo(

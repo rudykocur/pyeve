@@ -1,0 +1,55 @@
+.panel-default > .panel-heading {
+    padding: 5px;
+}
+
+.panel-body {
+    padding: 5px;
+}
+
+textarea.form-control,
+input.form-control{
+	background: gray;
+	color: white;
+    height: auto;
+    padding: 2px 4px;
+}
+
+.btn {
+    padding: 0 6px;
+}
+
+table {
+    font-size: 0.8em;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+
+.table>thead>tr>th,
+.table>tbody>tr>th,
+.table>tfoot>tr>th,
+.table>thead>tr>td,
+.table>tbody>tr>td,
+.table>tfoot>tr>td {
+    padding: 4px;
+}
+
+
+
+.form-control:-moz-placeholder {
+   color: #aaaaaa;
+}
+
+.form-control::-moz-placeholder {
+   color: #aaaaaa;
+}
+
+.form-control:-ms-input-placeholder {
+   color: #aaaaaa;
+}
+
+.form-control::-webkit-input-placeholder {
+   color: #aaaaaa;
+}

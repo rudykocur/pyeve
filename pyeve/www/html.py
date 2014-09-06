@@ -22,6 +22,23 @@ def forEach(iterable, callback):
     return result
 
 
+def Panel(content, heading=None):
+    return [
+        T.div(class_="panel panel-default")[
+            C.when(heading is not None)[
+                T.div(class_='panel-heading')[
+                    T.h3(class_='panel-title')[
+                        heading
+                    ]
+                ]
+            ],
+            T.div(class_="panel-body")[
+                content
+            ]
+        ]
+    ]
+
+
 class FormRenderer(object):
     def __init__(self):
         self.buttons = []
@@ -127,17 +144,31 @@ class FormRenderer(object):
         )
 
 
-class HtmlLayout(object):
-    def __init__(self, isLogged=True):
+class LayoutBase(object):
+    def __init__(self):
         self.content = None
-
-        #: :type: list of  pyeve.www.core.UIModuleDescriptior
-        self.modules = [ep.load() for ep in iter_entry_points('UIModules')]
-
-        self.isLogged = isLogged
+        self.additionalJs = []
 
     def setContent(self, content):
         self.content = content
+
+    def addJs(self, scriptPath):
+        self.additionalJs.append(scriptPath)
+
+    def getAdditionalJs(self):
+        return [
+            forEach(self.additionalJs, lambda path: [
+                T.script(src='/static/js/%s' % path)
+            ])
+        ]
+
+
+class HtmlLayout(LayoutBase):
+    def __init__(self, isLogged=True):
+        super().__init__()
+
+        self.modules = [ep.load() for ep in iter_entry_points('UIModules')]
+        self.isLogged = isLogged
 
     def renderNavbar(self, tag, data):
         """
