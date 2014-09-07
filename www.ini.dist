@@ -1,0 +1,5 @@
+# Default config file for webserver
+
+[www]
+# url for database connect
+databaseUrl = driver://user:pass@localhost/dbname

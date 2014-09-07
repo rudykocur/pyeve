@@ -24,7 +24,8 @@ class PersonalScanningPage(Page):
 
         helper = IGBRequest(request)
 
-        savedSignatures = json.loads(self.loadSignatures(helper))
+        savedSignatures = self.getDA().getSignaturesDA().getUserSignaturesInSystem(helper.charID,
+                                                                                   helper.systemID)
 
         return self.renderResponse(helper, savedSignatures)
 
@@ -38,9 +39,13 @@ class PersonalScanningPage(Page):
 
         if operation == 'saveSignatures':
             newSignatures = request.data.decode('utf8')
+            newSignatures = json.loads(newSignatures)
 
-            self.saveSignatures(helper, newSignatures)
-            html = flatten(self.getKnownSignaturesTable(json.loads(newSignatures)))
+            self.getDA().getSignaturesDA().updateUserSignaturesInSystem(helper.charID,
+                                                                        helper.systemID,
+                                                                        newSignatures)
+
+            html = flatten(self.getKnownSignaturesTable(newSignatures))
 
             return JsonResponse(dict(status='save sig', html=html))
 
@@ -49,26 +54,6 @@ class PersonalScanningPage(Page):
 
         else:
             return JsonResponse(dict(error='invalid operation'))
-
-    def saveSignatures(self, helper, signaturesData):
-        """
-
-        :type helper: pyeve.www.igb.IGBRequest
-        """
-
-        fileName = os.path.join('signaturesData', 'player_%s.json' % helper.charID)
-
-        with open(fileName, 'w') as f:
-            f.write(signaturesData)
-
-    def loadSignatures(self, helper):
-        fileName = os.path.join('signaturesData', 'player_%s.json' % helper.charID)
-
-        if not os.path.exists(fileName):
-            return '[]'
-
-        with open(fileName, 'r') as f:
-            return f.read()
 
     def renderResponse(self, helper, signatures):
 

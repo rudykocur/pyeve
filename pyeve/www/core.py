@@ -1,3 +1,5 @@
+from sqlalchemy.orm import sessionmaker
+
 __author__ = 'Rudy'
 
 from collections import namedtuple
@@ -9,8 +11,8 @@ from werkzeug.exceptions import HTTPException, NotFound
 
 from werkzeug.contrib.sessions import SessionStore
 
-from breve.flatten import flatten
-from breve.tags.html import tags as T
+from pyeve.db import DataAccessRepository
+from sqlalchemy import create_engine
 
 
 ModulePageInfo = namedtuple('ModulePageInfo', ['endpoint', 'url', 'name', 'clazzFactory'])
@@ -50,16 +52,22 @@ class UIModuleDescriptior(object):
 
 class Page(object):
 
-    def __init__(self, wsgiApp, urlAdapter):
+    def __init__(self, wsgiApp, urlAdapter, dataAccessRepo):
         """
+
+        :type dataAccessRepo: pyeve.db.DataAccessRepository
         :type urlAdapter: werkzeug.routing.MapAdapter
         :type wsgiApp: pyeve.www.core.PyEveWsgiApp
         """
         self._wsgiApp = wsgiApp
         self._urlAdapter = urlAdapter
+        self._da = dataAccessRepo
 
     def getUrl(self, endpoint, **params):
         return self._urlAdapter.build(endpoint, params)
+
+    def getDA(self):
+        return self._da
 
     def handleRequest(self, request, params):
         methodName = 'do%s' % request.method.lower().capitalize()
@@ -75,31 +83,6 @@ class Page(object):
         """
         :type request: werkzeug.wrappers.Request
         """
-
-    def breveLayout(self, content):
-
-        html = (
-            T.html(lang='en')[
-                T.head[
-                    T.meta(charset='utf-8'),
-                    T.meta(content='IE=Edge', **{'http-equiv': "X-UA-Compatible"}),
-                    T.meta(name='viewport', content='width=device-width, initial-scale=1'),
-
-                    T.title['PyEve WSGI App'],
-
-                    T.link(href='/static/css/bootstrap.min.css', rel='stylesheet')
-                ],
-
-                T.body[
-                    T.div(class_="container-fluid")[
-                        T.h1['Howdy!!'],
-                        content
-                    ]
-                ]
-            ]
-        )
-
-        return Response(flatten(html), mimetype='text/html')
 
 
 class InMemorySessionStore(SessionStore):
@@ -128,11 +111,15 @@ class InMemorySessionStore(SessionStore):
 
 class PyEveWsgiApp(object):
 
-    def __init__(self, config):
+    def __init__(self, databaseUrl):
         self.urlMap = Map()
         self.handlerMap = {}
 
         self.sessionStore = InMemorySessionStore()
+
+        # local.application = self
+        self.database_engine = create_engine(databaseUrl, convert_unicode=True, echo=True)
+        self.databaseSessionMaker = sessionmaker(bind=self.database_engine)
 
     def registerPage(self, url, endpoint, handlerCls):
         self.urlMap.add(Rule(url, endpoint=endpoint))
@@ -144,21 +131,35 @@ class PyEveWsgiApp(object):
         return response
 
     def dispatch_request(self, request):
+        # local.application = self
+
+        dbSession = self.databaseSessionMaker()
+
         adapter = self.urlMap.bind_to_environ(request.environ)
         try:
+            daRepo = DataAccessRepository(dbSession)
+
             endpoint, values = adapter.match()
 
             handlerCls = self.handlerMap[endpoint]
-            handler = handlerCls(self, adapter)
+            handler = handlerCls(self, adapter, daRepo)
 
-            return handler.handleRequest(request, values)
-            # methodName = 'do%s' % request.method.lower().capitalize()
-            #
-            # return getattr(handler, methodName)(request, **values)
+            response = handler.handleRequest(request, values)
+
+            dbSession.commit()
+
+            return response
+
         except NotFound as e:
+            dbSession.rollback()
             return self.error_404()
+
         except HTTPException as e:
+            dbSession.rollback()
             return e
+
+        finally:
+            dbSession.close()
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)

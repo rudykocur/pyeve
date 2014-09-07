@@ -66,7 +66,6 @@ BookmarkManager = (function() {
             processData: false,
             contentType: "application/json; charset=utf-8",
             complete: function(req) {
-                //DevelLogger.log('OMG REQUEST DONE 22', req.responseText);
 
                 if(req.responseJSON.systemName != currentSystem) {
                     window.location = window.location;
@@ -85,7 +84,6 @@ BookmarkManager = (function() {
 
                 container.empty();
                 container.append(req.responseJSON.html);
-                //DevelLogger.log('OMG REQUEST DONE');
             }
         });
     };
@@ -102,8 +100,6 @@ BookmarkManager = (function() {
 			}
 
 			var parts = row.split('\t');
-
-			// DevelLogger.log('row', row, 'parts', parts.length);
 
 			processed.push({
 				updated: DateFormatters.withSeconds(),
@@ -137,7 +133,6 @@ BookmarkManager = (function() {
 			row.strengthFloat = strFloat;
 
             if(!keyCache[row.key]) {
-                //DevelLogger.log('Adding signature', row.key);
 
                 knownSignatures.push(row);
             }
@@ -145,7 +140,6 @@ BookmarkManager = (function() {
                 var old = keyCache[row.key];
 
                 if(old.strengthFloat < row.strengthFloat) {
-                    //DevelLogger.log('Updating signature', row.key);
 
                     for(k in row) {
                         old[k] = row[k];
@@ -191,72 +185,3 @@ BookmarkManager = (function() {
 
 	return pub;
 })();
-
-//DevelLogger = (function() {
-//
-//	var pub = {};
-//
-//	var  target = null;
-//
-//	var getTarget = function() {
-//		if(target) {
-//			return target;
-//		}
-//
-//		target = document.createElement('div');
-//		document.body.appendChild(target);
-//
-//		target.setAttribute('class', 'console');
-//
-//		return target;
-//	}
-//
-//	var getDate = function() {
-//		var now = new Date();
-//
-//		var m = now.getMonth();
-//		if(m < 10) {
-//			m = '0' + m;
-//		}
-//
-//		var result = '';
-//		//result += now.getFullYear() + "-" + m + "-" + now.getDate() + " ";
-//		result += now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds();
-//
-//		return  result;
-//	};
-//
-//	var formatArgs = function(args) {
-//		var line = document.createElement('span');
-//
-//		line.appendChild(document.createTextNode("["+DateFormatters.hoursWithMilis() + "] "));
-//
-//		args.forEach(function(item) {
-//			line.appendChild(document.createTextNode(item + " "));
-//		});
-//
-//		return line;
-//	}
-//
-//	var addLine = function(line) {
-//		var t = getTarget();
-//
-//		if(t.hasChildNodes()) {
-//			t.insertBefore(line, t.firstChild);
-//		}
-//		else {
-//			t.appendChild(line);
-//		}
-//	};
-//
-//	pub.log = function() {
-//        return;
-//
-//		var args = Array.prototype.slice.call(arguments);
-//		//getTarget().appendChild(formatArgs(args));
-//		addLine(formatArgs(args));
-//	}
-//
-//	return pub;
-//
-//})();

@@ -1,6 +1,6 @@
 __author__ = 'Rudy'
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, and_
 # from sqlalchemy.orm import scoped_session, sessionmaker
 
 # db_session = scoped_session(sessionmaker(autocommit=False,
@@ -10,7 +10,47 @@ from sqlalchemy import create_engine, select
 #
 # meta = sqlalchemy.MetaData()
 
-from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations
+from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures
+
+from pyeve.schema import UserSignature
+
+
+class DataAccessRepository(object):
+    def __init__(self, session):
+        self._session = session
+
+    def getSignaturesDA(self):
+        return SignaturesDA(self._session)
+
+
+class SignaturesDA(object):
+    def __init__(self, session):
+        self._session = session
+
+    def getUserSignaturesInSystem(self, userId, systemId):
+        #: :type: pyeve.schema.UserSignature
+        sig = self._session.query(UserSignature).filter(and_(
+            userSignatures.c.id == userId,
+            userSignatures.c.systemId == systemId
+        )).first()
+
+        if sig is None:
+            return []
+
+        return sig.getSignatures()
+
+    def updateUserSignaturesInSystem(self, userId, systemId, signatures):
+        #: :type: pyeve.schema.UserSignature
+        sig = self._session.query(UserSignature).filter(and_(
+            userSignatures.c.id == userId,
+            userSignatures.c.systemId == systemId
+        )).first()
+
+        if sig is None:
+            sig = UserSignature(userId, systemId, signatures)
+            self._session.add(sig)
+        else:
+            sig.setSignatures(signatures)
 
 
 class DBCache(object):
@@ -71,19 +111,19 @@ class DBCache(object):
             rs.close()
 
 
-def init_db(databaseUrl):
-
-    # if databaseUrl is None:
-    #     with open('config.yaml') as f:
-    #         config = yaml.load(f)
-    #
-    #     databaseUrl = config['database']
-
-    engine = create_engine(databaseUrl, convert_unicode=True)
-    db_session.configure(bind=engine)
-
-    # import all modules here that might define models so that
-    # they will be registered properly on the metadata. Otherwise
-    # you will have to import them first before calling init_db()
-    #import yourapplication.models
-    # import quickbudget.schema
+# def init_db(databaseUrl):
+#
+#     # if databaseUrl is None:
+#     #     with open('config.yaml') as f:
+#     #         config = yaml.load(f)
+#     #
+#     #     databaseUrl = config['database']
+#
+#     engine = create_engine(databaseUrl, convert_unicode=True)
+#     db_session.configure(bind=engine)
+#
+#     # import all modules here that might define models so that
+#     # they will be registered properly on the metadata. Otherwise
+#     # you will have to import them first before calling init_db()
+#     #import yourapplication.models
+#     # import quickbudget.schema

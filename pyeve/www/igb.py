@@ -36,6 +36,10 @@ class IGBRequest(object):
     def systemName(self):
         return self._request.headers.get('EVE_SOLARSYSTEMNAME', 'SOL001')
 
+    @property
+    def systemID(self):
+        return int(self._request.headers.get('EVE_SOLARSYSTEMID', '777'))
+
 
 class IGBLayout(LayoutBase):
 

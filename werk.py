@@ -1,4 +1,5 @@
 import os
+from configparser import ConfigParser
 
 from werkzeug.wsgi import SharedDataMiddleware
 
@@ -7,8 +8,12 @@ from pyeve.www.routing import initRouting
 
 
 def create_app(with_static=True):
-    app = PyEveWsgiApp({
-    })
+    wwwConfig = ConfigParser()
+    wwwConfig.read('www.ini')
+
+    app = PyEveWsgiApp(
+        databaseUrl=wwwConfig['www']['databaseUrl']
+    )
 
     initRouting(app)
 
