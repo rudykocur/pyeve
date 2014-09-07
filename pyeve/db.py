@@ -10,7 +10,8 @@ from sqlalchemy import create_engine, select, and_
 #
 # meta = sqlalchemy.MetaData()
 
-from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures
+from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures, \
+    CorpSignature
 
 from pyeve.schema import UserSignature
 
@@ -48,6 +49,31 @@ class SignaturesDA(object):
 
         if sig is None:
             sig = UserSignature(userId, systemId, signatures)
+            self._session.add(sig)
+        else:
+            sig.setSignatures(signatures)
+
+    def getCorpSignaturesInSystem(self, corpId, systemId):
+        #: :type: pyeve.schema.CorpSignature
+        sig = self._session.query(CorpSignature).filter(and_(
+            userSignatures.c.id == corpId,
+            userSignatures.c.systemId == systemId
+        )).first()
+
+        if sig is None:
+            return []
+
+        return sig.getSignatures()
+
+    def updateCorpSignaturesInSystem(self, corpId, systemId, signatures):
+        #: :type: pyeve.schema.CorpSignature
+        sig = self._session.query(CorpSignature).filter(and_(
+            userSignatures.c.id == corpId,
+            userSignatures.c.systemId == systemId
+        )).first()
+
+        if sig is None:
+            sig = UserSignature(corpId, systemId, signatures)
             self._session.add(sig)
         else:
             sig.setSignatures(signatures)

@@ -14,9 +14,33 @@ __author__ = 'Rudy'
 
 ScanningModule = UIModuleDescriptior('Scanning', 'scanning', private=True)
 ScanningModule.addPage('personal', lambda: PersonalScanningPage, 'Personal scanner')
+ScanningModule.addPage('corporation', lambda: CorporationScanningPage, 'Corporation scanner')
 
 
-class PersonalScanningPage(Page):
+class ScanningPageBase(Page):
+
+    def _loadSignatures(self, signaturesDA, helper):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        raise Exception('Not implemented')
+
+    def _updateSignatures(self, signaturesDA, helper, signatures):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        raise Exception('Not implemented')
+
+    def _renderHeader(self, helper):
+        """
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+        raise Exception('Not implemented')
+
     def doGet(self, request):
         """
         :type request: werkzeug.wrappers.Request
@@ -24,8 +48,7 @@ class PersonalScanningPage(Page):
 
         helper = IGBRequest(request)
 
-        savedSignatures = self.getDA().getSignaturesDA().getUserSignaturesInSystem(helper.charID,
-                                                                                   helper.systemID)
+        savedSignatures = self._loadSignatures(self.getDA().getSignaturesDA(), helper)
 
         return self.renderResponse(helper, savedSignatures)
 
@@ -41,9 +64,7 @@ class PersonalScanningPage(Page):
             newSignatures = request.data.decode('utf8')
             newSignatures = json.loads(newSignatures)
 
-            self.getDA().getSignaturesDA().updateUserSignaturesInSystem(helper.charID,
-                                                                        helper.systemID,
-                                                                        newSignatures)
+            self._updateSignatures(self.getDA().getSignaturesDA(), helper, newSignatures)
 
             html = flatten(self.getKnownSignaturesTable(newSignatures))
 
@@ -65,10 +86,7 @@ class PersonalScanningPage(Page):
             content = [
                 Panel(
                     heading=[
-                        'Hello ', T.strong[helper.charName],
-                        T.div(class_='pull-right')[
-                            T.a(href='#')['Go to corp']
-                        ]
+                        self._renderHeader(helper),
                     ],
                     content=[
                         T.div(class_='row')[
@@ -144,3 +162,61 @@ class PersonalScanningPage(Page):
         ]
 
         return result
+
+
+class PersonalScanningPage(ScanningPageBase):
+    def _loadSignatures(self, signaturesDA, helper):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        return signaturesDA.getUserSignaturesInSystem(helper.charID, helper.systemID)
+
+    def _updateSignatures(self, signaturesDA, helper, signatures):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        signaturesDA.updateUserSignaturesInSystem(helper.charID, helper.systemID, signatures)
+
+    def _renderHeader(self, helper):
+        return [
+            'Hello ', T.strong[helper.charName],
+
+            T.div(class_='pull-right')[
+                T.a(href=self.getUrl('scanning/corporation'))['Go to corp']
+            ]
+        ]
+
+
+class CorporationScanningPage(ScanningPageBase):
+    def _loadSignatures(self, signaturesDA, helper):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        return signaturesDA.getCorpSignaturesInSystem(helper.corpID, helper.systemID)
+
+    def _updateSignatures(self, signaturesDA, helper, signatures):
+        """
+        :type signaturesDA: pyeve.db.SignaturesDA
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        signaturesDA.updateCorpSignaturesInSystem(helper.corpID, helper.systemID, signatures)
+
+    def _renderHeader(self, helper):
+        """
+        :type helper: pyeve.www.igb.IGBRequest
+        """
+
+        return [
+            'Hello ', T.strong[helper.charName], ', in the name of ', T.strong[helper.corpName],
+
+            T.div(class_='pull-right')[
+                T.a(href=self.getUrl('scanning/personal'))['Go to personal']
+            ]
+        ]

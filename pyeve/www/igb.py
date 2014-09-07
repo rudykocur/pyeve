@@ -40,6 +40,14 @@ class IGBRequest(object):
     def systemID(self):
         return int(self._request.headers.get('EVE_SOLARSYSTEMID', '777'))
 
+    @property
+    def corpName(self):
+        return self._request.headers.get('EVE_CORPNAME', 'CORPO666')
+
+    @property
+    def corpID(self):
+        return int(self._request.headers.get('EVE_CORPID', '888'))
+
 
 class IGBLayout(LayoutBase):
 
