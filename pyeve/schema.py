@@ -1,7 +1,7 @@
-import json
-
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData, Text
 from sqlalchemy.orm import mapper
+
+from pyeve.signatures import parseSignatures, unparseSignatures
 
 meta = MetaData()
 
@@ -31,10 +31,10 @@ class SignaturesBase(object):
         if self.data is None:
             return None
 
-        return json.loads(self.data)
+        return parseSignatures(self.data)
 
     def setSignatures(self, signatures):
-        self.data = json.dumps(signatures)
+        self.data = unparseSignatures(signatures)
 
 
 class UserSignature(SignaturesBase):

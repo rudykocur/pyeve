@@ -1,16 +1,12 @@
-import os
-import json
 from breve.flatten import flatten
 
 from breve.tags.html import tags as T
-from breve.tags import invisible, C
-from werkzeug.wrappers import Response
 
 from pyeve.www.core import UIModuleDescriptior, Page, JsonResponse
 from pyeve.www.html import Panel, forEach
 from pyeve.www.igb import IGBLayout, IGBRequest
 
-__author__ = 'Rudy'
+from pyeve.signatures import parseSignatures
 
 ScanningModule = UIModuleDescriptior('Scanning', 'scanning', private=True)
 ScanningModule.addPage('personal', lambda: PersonalScanningPage, 'Personal scanner')
@@ -62,11 +58,11 @@ class ScanningPageBase(Page):
 
         if operation == 'saveSignatures':
             newSignatures = request.data.decode('utf8')
-            newSignatures = json.loads(newSignatures)
 
-            self._updateSignatures(self.getDA().getSignaturesDA(), helper, newSignatures)
+            parsed = parseSignatures(newSignatures)
+            currentSignatures = self._updateSignatures(self.getDA().getSignaturesDA(), helper, parsed)
 
-            html = flatten(self.getKnownSignaturesTable(newSignatures))
+            html = flatten(self.getKnownSignaturesTable(currentSignatures))
 
             return JsonResponse(dict(status='save sig', html=html))
 
@@ -118,12 +114,10 @@ class ScanningPageBase(Page):
                             processButton: document.getElementById('processButton'),
                             signaturesInput: document.getElementById('signaturesInput'),
 
-                            systemName: '%(system)s',
-                            savedSignatures: %(signatures)s
+                            systemName: '%(system)s'
                         });
                     });
-                    """ % dict(system=helper.systemName,
-                               signatures=json.dumps(signatures))
+                    """ % dict(system=helper.systemName)
                 ]
             ]
 
@@ -141,20 +135,16 @@ class ScanningPageBase(Page):
                         T.th['Group'],
                         T.th['Type'],
                         T.th['Name'],
-                        T.th['Strength'],
-                        T.th['Updated'],
                     ]
                 ],
 
                 T.tbody[
-                    forEach(signatures, lambda row: [
+                    forEach(signatures, lambda key, group, sigType, name: [
                         T.tr[
-                            T.td[row['key']],
-                            T.td[row['group']],
-                            T.td[row['type']],
-                            T.td[row['name']],
-                            T.td[row['strength']],
-                            T.td[row['updated']],
+                            T.td[key],
+                            T.td[group],
+                            T.td[sigType],
+                            T.td[name],
                         ]
                     ])
                 ]
@@ -179,7 +169,7 @@ class PersonalScanningPage(ScanningPageBase):
         :type helper: pyeve.www.igb.IGBRequest
         """
 
-        signaturesDA.updateUserSignaturesInSystem(helper.charID, helper.systemID, signatures)
+        return signaturesDA.updateUserSignaturesInSystem(helper.charID, helper.systemID, signatures)
 
     def _renderHeader(self, helper):
         return [
@@ -206,7 +196,7 @@ class CorporationScanningPage(ScanningPageBase):
         :type helper: pyeve.www.igb.IGBRequest
         """
 
-        signaturesDA.updateCorpSignaturesInSystem(helper.corpID, helper.systemID, signatures)
+        return signaturesDA.updateCorpSignaturesInSystem(helper.corpID, helper.systemID, signatures)
 
     def _renderHeader(self, helper):
         """

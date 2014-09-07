@@ -1,19 +1,9 @@
-__author__ = 'Rudy'
+from sqlalchemy import select, and_
 
-from sqlalchemy import create_engine, select, and_
-# from sqlalchemy.orm import scoped_session, sessionmaker
+from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures
+from pyeve.schema import UserSignature, CorpSignature
 
-# db_session = scoped_session(sessionmaker(autocommit=False,
-#                                          autoflush=False))
-
-# engine = sqlalchemy.create_engine('mysql+pymysql://root:cycki@192.168.1.3/eve', echo=True)
-#
-# meta = sqlalchemy.MetaData()
-
-from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures, \
-    CorpSignature
-
-from pyeve.schema import UserSignature
+from pyeve.signatures import combineSignatures
 
 
 class DataAccessRepository(object):
@@ -51,7 +41,11 @@ class SignaturesDA(object):
             sig = UserSignature(userId, systemId, signatures)
             self._session.add(sig)
         else:
-            sig.setSignatures(signatures)
+            oldSig = sig.getSignatures()
+            newSig = combineSignatures(oldSig, signatures)
+            sig.setSignatures(newSig)
+
+        return sig.getSignatures()
 
     def getCorpSignaturesInSystem(self, corpId, systemId):
         #: :type: pyeve.schema.CorpSignature
@@ -76,7 +70,11 @@ class SignaturesDA(object):
             sig = UserSignature(corpId, systemId, signatures)
             self._session.add(sig)
         else:
-            sig.setSignatures(signatures)
+            oldSig = sig.getSignatures()
+            newSig = combineSignatures(oldSig, signatures)
+            sig.setSignatures(newSig)
+
+        return sig.getSignatures()
 
 
 class DBCache(object):
