@@ -176,7 +176,7 @@ BookmarkManager = (function() {
             saveSignatures();
 		});
 
-        //setInterval(checkSystem, 5000);
+        setInterval(checkSystem, 5000);
 	};
 
 	pub.showSignatures = function(signatures) {
