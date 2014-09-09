@@ -6,7 +6,7 @@ var IGBManager = (function() {
     var pub = {};
 
     pub.requestTrust = function() {
-        CCPEVE.requestTrust('http://localhost:5000/');
+        CCPEVE.requestTrust('http://' + window.location.host);
         $('#untrusted').remove();
 
         return false;
