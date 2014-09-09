@@ -43,18 +43,8 @@ table {
 
 
 
-.form-control:-moz-placeholder {
-   color: #aaaaaa;
-}
 
-.form-control::-moz-placeholder {
-   color: #aaaaaa;
-}
-
-.form-control:-ms-input-placeholder {
-   color: #aaaaaa;
-}
 
 .form-control::-webkit-input-placeholder {
-   color: #aaaaaa;
+   color: #FF0000;
 }

@@ -11,6 +11,48 @@ from pyeve.signatures import parseSignatures
 ScanningModule = UIModuleDescriptior('Scanning', 'scanning', private=True)
 ScanningModule.addPage('personal', lambda: PersonalScanningPage, 'Personal scanner')
 ScanningModule.addPage('corporation', lambda: CorporationScanningPage, 'Corporation scanner')
+ScanningModule.addPage('help', lambda: HelpPage, 'Help page')
+
+
+class HelpPage(Page):
+    def doGet(self, request):
+        layout = IGBLayout()
+
+        layout.setContent([
+            Panel(heading=['How to use scanning tool'],
+                  content=[
+                      T.p["""
+                      This tool alows you to remember all scanned signatures in given solar system. It will try
+                      to automatically detect that you changed system, and always show you signatures from system
+                      you are currently in
+                      """],
+
+                      T.p["""
+                      Basic idea for this tool is that, you should copy-and-paste all data from scanning overview to
+                      rectangular gray textarea in this tool (and submit) as often as posible. It will automatically
+                      detect changes, update existing signatures with more info, delete old signatures, and add new.
+                      """],
+
+                      T.p["""
+                      This tool has two modes: personal and corporation. All they differ is who sees your submitted
+                      data. It might be only you, or all people from your corporation.
+                      """],
+
+                      T.p["""
+                      """],
+
+                      T.hr(),
+
+                      T.p[
+                          'Back to: ',
+                          T.a(href=self.getUrl('scanning/personal'))['personal scanner'],
+                          ' or ',
+                          T.a(href=self.getUrl('scanning/corporation'))['corporation scanner'],
+                      ]
+                  ])
+        ])
+
+        return layout
 
 
 class ScanningPageBase(Page):
@@ -100,7 +142,10 @@ class ScanningPageBase(Page):
                         ]
                     ]
                 ),
-                Panel(heading=['Known signatures in ', T.strong[helper.systemName]],
+                Panel(heading=['Known signatures in ', T.strong[helper.systemName],
+                               T.div(class_='pull-right')[
+                                   T.a(href=self.getUrl('scanning/help'))['How to use this tool']
+                               ]],
                       content=[
                           T.div(id='bookmarkContainer')[
                               self.getKnownSignaturesTable(signatures)
@@ -204,7 +249,7 @@ class CorporationScanningPage(ScanningPageBase):
         """
 
         return [
-            'Hello ', T.strong[helper.charName], ', in the name of ', T.strong[helper.corpName],
+            'Hello ', T.strong[helper.charName], ', from', T.strong[helper.corpName],
 
             T.div(class_='pull-right')[
                 T.a(href=self.getUrl('scanning/personal'))['Go to personal']

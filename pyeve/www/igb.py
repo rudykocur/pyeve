@@ -20,8 +20,8 @@ class IGBRequest(object):
 
     @property
     def isTrusted(self):
-        return True
-        # return self._request.headers.get('EVE_TRUSTED', 'No') == 'Yes'
+        # return True
+        return self._request.headers.get('EVE_TRUSTED', 'No') == 'Yes'
 
     @property
     def charName(self):
@@ -92,6 +92,15 @@ class IGBLayout(LayoutBase):
                         C.switch(isTrusted) [
                             C.case(True) [self.content],
                             C.case(False) [self.renderRequestTrust()]
+                        ],
+
+                        T.div(class_='text-center')[
+                            T.small[
+                                'PyEVE. Created by ',
+                                T.a(href="#", onclick="CCPEVE.showInfo(1377, 93747896); return false")[
+                                    'Rudykocur Maxwell'
+                                ]
+                            ]
                         ]
                     ],
                 ]
