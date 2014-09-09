@@ -1,6 +1,7 @@
 from sqlalchemy import select, and_
 
-from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures
+from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures, \
+    corpSignatures
 from pyeve.schema import UserSignature, CorpSignature
 
 from pyeve.signatures import combineSignatures
@@ -50,8 +51,8 @@ class SignaturesDA(object):
     def getCorpSignaturesInSystem(self, corpId, systemId):
         #: :type: pyeve.schema.CorpSignature
         sig = self._session.query(CorpSignature).filter(and_(
-            userSignatures.c.id == corpId,
-            userSignatures.c.systemId == systemId
+            corpSignatures.c.id == corpId,
+            corpSignatures.c.systemId == systemId
         )).first()
 
         if sig is None:
@@ -62,12 +63,12 @@ class SignaturesDA(object):
     def updateCorpSignaturesInSystem(self, corpId, systemId, signatures):
         #: :type: pyeve.schema.CorpSignature
         sig = self._session.query(CorpSignature).filter(and_(
-            userSignatures.c.id == corpId,
-            userSignatures.c.systemId == systemId
+            corpSignatures.c.id == corpId,
+            corpSignatures.c.systemId == systemId
         )).first()
 
         if sig is None:
-            sig = UserSignature(corpId, systemId, signatures)
+            sig = CorpSignature(corpId, systemId, signatures)
             self._session.add(sig)
         else:
             oldSig = sig.getSignatures()
