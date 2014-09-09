@@ -39,6 +39,18 @@ class HelpPage(Page):
                       """],
 
                       T.p["""
+                      To copy-paste signatures from scanning overview, select any signature in your "Probe scanner"
+                      window. Then press ctrl+a (select all), then ctrl+c (copy). Then click in IGB window, inside
+                      rectangular gray area, and press ctrl+v (paste).
+                      """],
+
+                      T.div[
+                          T.img(src='/static/images/help_overview.jpg'),
+                          T.img(src='/static/images/help_igb_paste.jpg')
+
+                      ],
+
+                      T.p["""
                       """],
 
                       T.hr(),
@@ -249,7 +261,7 @@ class CorporationScanningPage(ScanningPageBase):
         """
 
         return [
-            'Hello ', T.strong[helper.charName], ', from', T.strong[helper.corpName],
+            'Hello ', T.strong[helper.charName], ', from ', T.strong[helper.corpName],
 
             T.div(class_='pull-right')[
                 T.a(href=self.getUrl('scanning/personal'))['Go to personal']
