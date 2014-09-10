@@ -148,7 +148,8 @@ class ScanningPageBase(Page):
                                            placeholder="Paste scanning content here")
                             ],
                             T.div(class_='col-xs-4')[
-                                T.button(class_='btn btn-default', id='processButton')['Submit']
+                                T.button(class_='btn btn-default', id='processButton')['Submit'],
+                                T.img(id='ajaxLoader', src='/static/images/ajax-loader.gif'),
                             ],
 
                         ]
@@ -170,6 +171,7 @@ class ScanningPageBase(Page):
                             container: document.getElementById('bookmarkContainer'),
                             processButton: document.getElementById('processButton'),
                             signaturesInput: document.getElementById('signaturesInput'),
+                            ajaxLoader: document.getElementById('ajaxLoader'),
 
                             systemName: '%(system)s'
                         });

@@ -48,3 +48,8 @@ table {
 .form-control::-webkit-input-placeholder {
    color: #FF0000;
 }
+
+#ajaxLoader {
+    margin-left: 10px;
+    display: none;
+}

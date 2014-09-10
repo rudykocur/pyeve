@@ -6,8 +6,8 @@ BookmarkManager = (function() {
 	var pub = {};
 
 	var container = null;
-
     var currentSystem = null;
+    var ajaxLoader = null;
 
     var checkSystem = function() {
         $.ajax('?call=getSystem', {
@@ -24,12 +24,16 @@ BookmarkManager = (function() {
     };
 
     var submitSignatures = function(signatures) {
+        ajaxLoader.css('display', 'inline');
+
         $.ajax('?call=saveSignatures', {
             type: 'POST',
             processData: false,
             contentType: "application/json; charset=utf-8",
             data: signatures,
             complete: function(req) {
+                ajaxLoader.css('display', '');
+
                 container.empty();
                 container.append(req.responseJSON.html);
             }
@@ -43,6 +47,7 @@ BookmarkManager = (function() {
 	pub.init = function(params) {
 		container = $(params.container);
         currentSystem = params.systemName;
+        ajaxLoader = $(params.ajaxLoader);
 
 		params.processButton.addEventListener('click', function(e) {
 			e.stopPropagation();

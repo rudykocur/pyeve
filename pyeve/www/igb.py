@@ -18,15 +18,18 @@ class IGBRequest(object):
 
         self._request = request
 
+        self.isDevel = (request.remote_addr == '127.0.0.1')
+
     @property
     def isTrusted(self):
-        # return True
+        if self.isDevel:
+            return True
+
         return self._request.headers.get('EVE_TRUSTED', 'No') == 'Yes'
 
     @property
     def charName(self):
         return self._request.headers.get('EVE_CHARNAME', 'ANON')
-        # return self._request.headers['EVE_CHARNAME']
 
     @property
     def charID(self):
@@ -50,12 +53,6 @@ class IGBRequest(object):
 
 
 class IGBLayout(LayoutBase):
-
-    # def __init__(self):
-    #     self.content = None
-    #
-    # def setContent(self, content):
-    #     self.content = content
 
     def render(self, request, url):
         """
@@ -89,9 +86,9 @@ class IGBLayout(LayoutBase):
                     # 'HOWDY',
                     # request.headers.get('EVE_TRUSTED', 'alo'),
                     T.div(class_='container-fluid')[
-                        C.switch(isTrusted) [
-                            C.case(True) [self.content],
-                            C.case(False) [self.renderRequestTrust()]
+                        C.switch(isTrusted)[
+                            C.case(True)[self.content],
+                            C.case(False)[self.renderRequestTrust()]
                         ],
 
                         T.div(class_='text-center')[
