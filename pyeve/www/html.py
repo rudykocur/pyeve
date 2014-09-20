@@ -5,6 +5,7 @@ from werkzeug.wrappers import Response
 from breve.flatten import flatten
 from breve.tags.html import tags as T
 from breve.tags import invisible, C
+from breve.tags.entities import entities
 
 from wtforms import BooleanField
 
@@ -23,20 +24,43 @@ def forEach(iterable, callback):
 
 
 def Panel(content, heading=None):
-    return [
-        T.div(class_="panel panel-default")[
-            C.when(heading is not None)[
-                T.div(class_='panel-heading')[
-                    T.h3(class_='panel-title')[
-                        heading
-                    ]
+    return T.div(class_="panel panel-default")[
+        C.when(heading is not None)[
+            T.div(class_='panel-heading')[
+                T.h3(class_='panel-title')[
+                    heading
                 ]
-            ],
-            T.div(class_="panel-body")[
-                content
             ]
+        ],
+        T.div(class_="panel-body")[
+            content
         ]
     ]
+
+def Modal(id, content, heading=None, footer=None):
+    result = []
+
+    result.append(T.div(class_='modal fade', id=id, tabindex='-1', role='dialog')[
+        T.div(class_='modal-dialog')[
+            T.div(class_='modal-content')[
+                T.div(class_='modal-header')[
+                    T.button(type='button', class_='close', **{'data-dismiss': 'modal'})[
+                        T.span[entities.times],
+                        T.span(class_='sr-only')['Close']
+                    ],
+                    T.h4(class_='modal-title')[heading]
+                ],
+                T.div(class_='modal-body')[
+                    content
+                ],
+                C.when(footer is not None)[
+                    T.div(class_='modal-footer')[footer]
+                ]
+            ]
+        ]
+    ])
+
+    return result
 
 
 class FormRenderer(object):

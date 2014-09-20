@@ -31,7 +31,6 @@ table {
     margin-bottom: 0;
 }
 
-
 .table>thead>tr>th,
 .table>tbody>tr>th,
 .table>tfoot>tr>th,
@@ -41,9 +40,11 @@ table {
     padding: 4px;
 }
 
-
-
-
+.modal-header,
+.modal-body,
+.modal-footer {
+    padding: 5px;
+}
 
 .form-control::-webkit-input-placeholder {
    color: #FF0000;
@@ -52,4 +53,24 @@ table {
 #ajaxLoader {
     margin-left: 10px;
     display: none;
+}
+
+.blueprint {
+    display: none;
+}
+
+#lootModal .buttons {
+    text-align: center;
+}
+
+#lootModal .buttons .btn {
+    margin-right: 5px;
+}
+
+#lootModal #containers .buttons {
+    margin-bottom: 15px;
+}
+
+#lootModal form label {
+    white-space: nowrap;
 }

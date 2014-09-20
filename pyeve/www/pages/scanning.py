@@ -1,9 +1,10 @@
 from breve.flatten import flatten
 
 from breve.tags.html import tags as T
+from breve.tags import C
 
 from pyeve.www.core import UIModuleDescriptior, Page, JsonResponse
-from pyeve.www.html import Panel, forEach
+from pyeve.www.html import Panel, forEach, Modal
 from pyeve.www.igb import IGBLayout, IGBRequest
 
 from pyeve.signatures import parseSignatures
@@ -123,13 +124,71 @@ class ScanningPageBase(Page):
         elif operation == 'getSystem':
             return JsonResponse(dict(systemName=helper.systemName))
 
+        elif operation == 'getLoot':
+            return self.handleGetLootRequest(request)
+
+        elif operation == 'addContainer':
+            return self.handleAddContainerRequest(request)
+
         else:
             return JsonResponse(dict(error='invalid operation'))
+
+    def handleGetLootRequest(self, request):
+        """
+        :type request: werkzeug.wrappers.Request
+        """
+
+        html = flatten(self.renderSignatureLoot(request.args['key']))
+
+        return JsonResponse(
+            dict(status='getLoot',
+                 metadata=dict(
+
+                     levels=dict(
+                         trivial=dict(
+                             label='Debris',
+                             image='http://image.eveonline.com/Type/33254_64.png',
+                             count=0,
+                         ),
+                         easy=dict(
+                             label='Rubble',
+                             image='http://image.eveonline.com/Type/33255_64.png',
+                             count=0,
+                         ),
+                         medium=dict(
+                             label='Remains',
+                             image='http://image.eveonline.com/Type/33256_64.png',
+                             count=0,
+                         ),
+                         hard=dict(
+                             label='Ruins',
+                             image='http://image.eveonline.com/Type/33257_64.png',
+                             count=0,
+                         ),
+                     ),
+                 ),
+                 html=html)
+        )
+
+    def handleAddContainerRequest(self, request):
+        """
+        :type request: werkzeug.wrappers.Request
+        """
+
+        import time
+        time.sleep(1)
+
+        return JsonResponse(
+            dict(status='addContainer',
+                 totalWorth='40 000 000 ISK')
+        )
 
     def renderResponse(self, helper, signatures):
 
         layout = IGBLayout()
+        layout.addJs('common.js')
         layout.addJs('scanning.js')
+        layout.addJs('loot.js')
 
         if helper.isTrusted:
 
@@ -162,7 +221,8 @@ class ScanningPageBase(Page):
                       content=[
                           T.div(id='bookmarkContainer')[
                               self.getKnownSignaturesTable(signatures)
-                          ]
+                          ],
+
                       ]),
                 T.script[
                     """
@@ -175,6 +235,8 @@ class ScanningPageBase(Page):
 
                             systemName: '%(system)s'
                         });
+
+                        LootInterface.init();
                     });
                     """ % dict(system=helper.systemName)
                 ]
@@ -183,6 +245,68 @@ class ScanningPageBase(Page):
             layout.setContent(content)
 
         return layout
+
+    def renderSignatureLoot(self, signatureKey):
+        result = Modal(
+            id='lootModal',
+            content=[
+                T.div(id='containers')[
+                    T.div(class_='buttons')[
+                            T.button(type='button', class_='btn btn-success', **{'data-level': 'trivial'})['+ Debris'],
+                            T.button(type='button', class_='btn btn-success', **{'data-level': 'easy'})['+ Rubble'],
+                            T.button(type='button', class_='btn btn-warning', **{'data-level': 'medium'})['+ Remains'],
+                            T.button(type='button', class_='btn btn-danger', **{'data-level': 'hard'})['+ Ruins'],
+                    ],
+
+                    T.div(id='contentPaste')[
+                        Panel(
+                            heading='Paste content of container below',
+                            content=[
+                                T.div(class_='row')[
+                                    T.div(class_='col-xs-9')[
+                                        T.textarea(class_="form-control", rows="2"),
+                                    ],
+                                    T.div(class_='col-xs-3')[
+                                        T.button(class_='btn btn-default')['Submit'],
+                                        T.div(class_='ajaxLoader', style='white-space: nowrap')[
+                                            T.img(src='/static/images/ajax-loader.gif'),
+                                            ' Processing'
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                    ],
+
+                    T.div(class_='row container-list')[
+                        T.div(class_='col-xs-3 blueprint')[
+                            T.div(class_='thumbnail')[
+                                T.img(src='#'),
+                                T.div(class_='caption')[
+                                    T.strong()['Lorem ipsum'],
+                                    T.div(class_='totalWorth')['Lorem ipsum'],
+                                ]
+                            ]
+
+                        ]
+                    ],
+                ]
+            ],
+            heading=['Loot for signature ', T.strong[signatureKey]],
+            # footer=[
+            #
+            #     # T.span(class_='loader')[
+            #     #     T.img(src='/static/images/ajax-loader.gif'),
+            #     #     ' Loading ...'
+            #     # ],
+            #     #
+            #     # ' ',
+            #     T.button(type='button', class_='btn btn-default')['Save'],
+            # ]
+        )
+
+        return result
+
 
     def getKnownSignaturesTable(self, signatures):
 
@@ -194,6 +318,7 @@ class ScanningPageBase(Page):
                         T.th['Group'],
                         T.th['Type'],
                         T.th['Name'],
+                        T.th[''],
                     ]
                 ],
 
@@ -204,6 +329,13 @@ class ScanningPageBase(Page):
                             T.td[group],
                             T.td[sigType],
                             T.td[name],
+                            T.td[
+                                C.when(sigType in ['Data Site', 'Relic Site'])[
+                                    T.a(href='#', class_='lootModalToggle', **{'data-key': key})[
+                                        'Loot'
+                                    ]
+                                ]
+                            ]
                         ]
                     ])
                 ]
