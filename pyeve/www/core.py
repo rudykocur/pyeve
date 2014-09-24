@@ -118,7 +118,7 @@ class PyEveWsgiApp(object):
         self.sessionStore = InMemorySessionStore()
 
         # local.application = self
-        self.database_engine = create_engine(databaseUrl, convert_unicode=True, echo=True)
+        self.database_engine = create_engine(databaseUrl, convert_unicode=True, echo=True, pool_recycle=3600)
         self.databaseSessionMaker = sessionmaker(bind=self.database_engine)
 
     def registerPage(self, url, endpoint, handlerCls):
