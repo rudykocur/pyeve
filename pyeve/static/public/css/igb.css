@@ -75,10 +75,7 @@ table {
     position: absolute;
     top: 5px;
     right: 20px;
-    text-indent: -9999px;
-    width: 16px;
-    height: 16px;
-    background: red;
+    color: red;
 }
 
 #lootModal form label {

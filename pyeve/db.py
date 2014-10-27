@@ -1,3 +1,4 @@
+import yaml
 from sqlalchemy import select, and_
 
 from pyeve.schema import types, mapDenormalize, mapRegions, mapSolarSystems, mapConstellations, userSignatures, \
@@ -13,6 +14,9 @@ class DataAccessRepository(object):
 
     def getSignaturesDA(self):
         return SignaturesDA(self._session)
+
+    def getLootDA(self):
+        return LootDA(self._session)
 
 
 class SignaturesDA(object):
@@ -76,6 +80,27 @@ class SignaturesDA(object):
             sig.setSignatures(newSig)
 
         return sig.getSignatures()
+
+
+class LootDA(object):
+    def __init__(self, session):
+        self._session = session
+
+    def calculateLootWorth(self, loot):
+        """
+        :type loot: list of pyeve.loot.SimpleContainerEntry
+        """
+
+        with open('pyeve/static/basePrice.yaml') as f:
+            data = yaml.load(f)
+
+        prices = []
+        for item in loot:
+            price = data.get(item.name, 0)
+
+            prices.append(price)
+
+        return sum(prices)
 
 
 class DBCache(object):

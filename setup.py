@@ -20,7 +20,8 @@ setup(
         'Breve',
         'WTForms',
         'sqlalchemy',
-        'alembic'
+        'alembic',
+        'pyyaml'
     ],
     entry_points={
         'UIModules': [

@@ -194,6 +194,7 @@ LootInterface = (function() {
         return $.ajax('?call=addContainer&key='+key+'&level='+level, {
             type: 'POST',
             processData: false,
+            contentType: "text/plain; charset=utf-8",
             data: content
         });
     };

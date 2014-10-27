@@ -8,6 +8,7 @@ from pyeve.www.html import Panel, forEach, Modal
 from pyeve.www.igb import IGBLayout, IGBRequest
 
 from pyeve.signatures import parseSignatures
+from pyeve.loot import parseContainerEntries, formatWorthAsString
 
 ScanningModule = UIModuleDescriptior('Scanning', 'scanning', private=True)
 ScanningModule.addPage('personal', lambda: PersonalScanningPage, 'Personal scanner')
@@ -174,12 +175,17 @@ class ScanningPageBase(Page):
         import time
         time.sleep(1)
 
+        content = request.data.decode('utf8')
+        entries = parseContainerEntries(content)
+
+        total = self.getDA().getLootDA().calculateLootWorth(entries)
+
         import random
 
         return JsonResponse(
             dict(status='addContainer',
                  id=random.randint(1, 1000000),
-                 totalWorth='40 000 000 ISK')
+                 totalWorth='%s ISK' % formatWorthAsString(total))
         )
 
     def renderResponse(self, helper, signatures):
@@ -286,7 +292,9 @@ class ScanningPageBase(Page):
                                     T.div(class_='totalWorth')['Lorem ipsum'],
                                 ],
 
-                                T.a(href='#', title='Delete', **{'data-toggle': 'tooltip', 'data-placement': 'top'})['X']
+                                T.a(href='#', title='Delete', **{'data-toggle': 'tooltip', 'data-placement': 'top'})[
+                                    T.span(class_='glyphicon glyphicon-remove-circle')
+                                ]
                             ]
 
                         ]
@@ -294,16 +302,6 @@ class ScanningPageBase(Page):
                 ]
             ],
             heading=['Loot for signature ', T.strong[signatureKey]],
-            # footer=[
-            #
-            #     # T.span(class_='loader')[
-            #     #     T.img(src='/static/images/ajax-loader.gif'),
-            #     #     ' Loading ...'
-            #     # ],
-            #     #
-            #     # ' ',
-            #     T.button(type='button', class_='btn btn-default')['Save'],
-            # ]
         )
 
         return result
