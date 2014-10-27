@@ -148,22 +148,18 @@ class ScanningPageBase(Page):
                          trivial=dict(
                              label='Debris',
                              image='http://image.eveonline.com/Type/33254_64.png',
-                             count=0,
                          ),
                          easy=dict(
                              label='Rubble',
                              image='http://image.eveonline.com/Type/33255_64.png',
-                             count=0,
                          ),
                          medium=dict(
                              label='Remains',
                              image='http://image.eveonline.com/Type/33256_64.png',
-                             count=0,
                          ),
                          hard=dict(
                              label='Ruins',
                              image='http://image.eveonline.com/Type/33257_64.png',
-                             count=0,
                          ),
                      ),
                  ),
@@ -178,8 +174,11 @@ class ScanningPageBase(Page):
         import time
         time.sleep(1)
 
+        import random
+
         return JsonResponse(
             dict(status='addContainer',
+                 id=random.randint(1, 1000000),
                  totalWorth='40 000 000 ISK')
         )
 
@@ -285,7 +284,9 @@ class ScanningPageBase(Page):
                                 T.div(class_='caption')[
                                     T.strong()['Lorem ipsum'],
                                     T.div(class_='totalWorth')['Lorem ipsum'],
-                                ]
+                                ],
+
+                                T.a(href='#', title='Delete', **{'data-toggle': 'tooltip', 'data-placement': 'top'})['X']
                             ]
 
                         ]
@@ -306,7 +307,6 @@ class ScanningPageBase(Page):
         )
 
         return result
-
 
     def getKnownSignaturesTable(self, signatures):
 

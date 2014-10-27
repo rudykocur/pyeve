@@ -71,6 +71,16 @@ table {
     margin-bottom: 15px;
 }
 
+#lootModal #containers .thumbnail a {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    text-indent: -9999px;
+    width: 16px;
+    height: 16px;
+    background: red;
+}
+
 #lootModal form label {
     white-space: nowrap;
 }

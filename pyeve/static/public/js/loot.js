@@ -19,8 +19,6 @@ LootUI = (function() {
         return LootModalUI(modalHtml, metadata);
     };
 
-
-
     return function() {
         var obj = Object.create(pub);
 
@@ -44,6 +42,10 @@ LootModalUI = (function() {
         $(this.modal).find('.buttons button').on('click', this._handleNewContainerClick.bind(this));
         this.uiContentPasteSubmit.on('click', this._handleContentSubmit.bind(this));
 
+        this.modal.on('hidden.bs.modal', function() {
+            $(root).remove();
+        });
+
         this.uiContentPaste.hide();
         this.modal.modal('show');
         this.uiLoader.hide();
@@ -54,17 +56,12 @@ LootModalUI = (function() {
         e.stopPropagation();
 
         var level = e.target.getAttribute('data-level');
-
-        console.log('clicked', e.target, '::', level);
-
         this.selectedLevel = level;
 
         this.uiContentPaste.slideDown();
     };
 
     cls._handleContentSubmit = function(e) {
-        console.log('OMG OMG CLICK', e);
-
         this.onContainerSubmitted.fire(this.selectedLevel, this.uiContentPaste.find('textarea').val());
     };
 
@@ -82,7 +79,7 @@ LootModalUI = (function() {
         }
     };
 
-    cls.showNextContainer = function(level, totalWorth) {
+    cls.showNextContainer = function(id, level, totalWorth) {
         var newRow = $(this.rowBlueprint.cloneNode(true));
         newRow.removeClass('blueprint');
         newRow.find('img').attr('src', this.metadata.levels[level].image);
@@ -90,6 +87,8 @@ LootModalUI = (function() {
         newRow.find('.totalWorth').text(totalWorth);
 
         $(this.rowBlueprint).before(newRow);
+
+        return LootContainerUI(id, newRow);
     };
 
     return function(root, metadata) {
@@ -105,9 +104,41 @@ LootModalUI = (function() {
 
         obj.onContainerSubmitted = Observable();
 
-        $(document.body).append(root);
-
         obj._initUI($(root));
+
+        return obj;
+    }
+})();
+
+LootContainerUI = (function() {
+    var cls = {};
+
+    cls._initUI = function(root) {
+        this.uiCloseButton = $(this.element).find('a');
+
+        this.uiCloseButton.on('click', function(e) {
+            e.preventDefault();
+
+            this.onContainerDeleteRequest.fire(this.containerId);
+        }.bind(this));
+
+        $(this.uiCloseButton).tooltip();
+    };
+
+    cls.remove = function() {
+        this.element.remove();
+    };
+
+    return function(containerId, root) {
+        var obj = Object.create(cls);
+
+        obj.element = root;
+        obj.containerId = containerId;
+        obj.onContainerDeleteRequest = Observable();
+
+        obj.uiCloseButton = null;
+
+        obj._initUI(root);
 
         return obj;
     }
@@ -124,46 +155,46 @@ LootInterface = (function() {
         ui.modalRequested.observe(function(signatureKey) {
             console.log('Requested modal for sig', signatureKey);
 
-            loadLootForSignature(signatureKey);
+            var d = requestLootForSignature(signatureKey);
 
+            d.done(function(data) {handleModalWindow(signatureKey, data)});
         });
-
     };
 
-    var loadLootForSignature = function(key) {
-        $.ajax('?call=getLoot&key='+key, {
+    var handleModalWindow = function(signatureKey, data) {
+        var modal = ui.createModal(data.html, data.metadata);
+
+        modal.onContainerSubmitted.observe(function(level, content) {
+            modal.setProcessing(true);
+
+            var d2 = requestContainerAdd(signatureKey, level, content);
+
+            d2.done(function(containerData) {
+                modal.setProcessing(false);
+                modal.hidePasteArea();
+                var container = modal.showNextContainer(containerData.id, level, containerData.totalWorth);
+
+                container.onContainerDeleteRequest.observe(function(id) {
+                    console.log('Container', id, 'is about to be deleted');
+
+                    setTimeout(function() {container.remove()}, 1000);
+                })
+            })
+        });
+    };
+
+    var requestLootForSignature = function(key) {
+        return $.ajax('?call=getLoot&key='+key, {
+            type: 'POST',
+            processData: false
+        });
+    };
+
+    var requestContainerAdd = function(key, level, content) {
+        return $.ajax('?call=addContainer&key='+key+'&level='+level, {
             type: 'POST',
             processData: false,
-            //contentType: "application/json; charset=utf-8",
-            //data: signatures,
-            complete: function(req) {
-                console.log('GOT RESPONSE', req);
-
-                var data = req.responseJSON;
-
-                var modal = ui.createModal(data.html, data.metadata);
-
-                modal.onContainerSubmitted.observe(function(level, content) {
-                    console.log('New content, level', level, ' with ', content);
-
-                    modal.setProcessing(true);
-
-                    $.ajax('?call=addContainer&key='+key+'&level='+level, {
-                        type: 'POST',
-                        processData: false,
-                        //contentType: "application/json; charset=utf-8",
-                        data: content,
-                        complete: function (req) {
-                            console.log('Container added!!');
-
-                            modal.setProcessing(false);
-                            modal.hidePasteArea();
-                            modal.showNextContainer(level, req.responseJSON.totalWorth)
-                        }
-                    });
-
-                });
-            }
+            data: content
         });
     };
 
