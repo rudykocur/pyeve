@@ -28,6 +28,7 @@ setup(
             'profile = pyeve.www.pages.profile:ProfileModule',
             'skills = pyeve.www.pages.skills:SkillsModule',
             'scanning = pyeve.www.pages.scanning:ScanningModule',
+            'wh_map = pyeve.www.pages.wh_map:WormholeMapModule',
         ]
     }
 )

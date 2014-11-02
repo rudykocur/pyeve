@@ -1,0 +1,136 @@
+---
+                                  +--------+
+                                  |        |
+           +--------+             |J151909 |              +---------+
+           |        +-------------+        +--------------+         |
+           |FO8M-2  |             +--------+              |J165205  |
+           |        |                           +---------+         +----+------------------+
+           ++------++                           |         +---------+    |                  |
+            |      |                            |                        |                  |
+     +------+-+   ++-------+             +------+--+                 +---+-----+       +----+----+
+     |        |   |        |             |         |                 |         |       |         |
+     | Jita   |   | Amarr  |             |J105433  |                 |J113918  |       |UEPO-D   |
+     |        |   |        |             |         |                 |         |       |         |
+     +--------+   +--------+             +------+--+                 +----+----+       +---------+
+                                                |                         |
+                                                |                         |
+                                         +------+--+                 +----+----+
+                                         |         |                 |         |
+                                         |J151538  +----------+      | Unkah   |
+                                         |         |          |      |         |
+                                         +--+------+          |      +---------+
+                                            |                 |
+                                    +-------+--+         +----+-----+
+                                    |          |         |          |
+                                    |Oto       |         |J135533   |
+    +------------+------------------+          +----+    |          |
+    |            |                  +-------+--+    |    +----------+
+    |            |                          |       |
++---+----+   +---+----+             +-------+--+    |    +----------+
+|        |   |        |             |          |    +----+          |
+|  GDEW  |   | RRWI   |             |J142055   |         |J110431   |
+|        |   |        |      +------+          +-----+   |          |
++--------+   +--------+      |      +------+---+     |   +----------+
+                             |             |         |
+                             |             |         |
+                      +------+---+     +---+------+  |   +------------+
+                      |          |     |          |  +---+            |
+                      |J151035   |     |J212607   |      |J215537     |
+                      |          |     |          |      |            |
+                      +----------+     +----------+      +------------+
+
+---
+systems:
+  - name: J151909
+  - name: FO8M-2
+  - name: Jita
+  - name: Amarr
+  - name: J165205
+  - name: J105433
+  - name: J151538
+  - name: Oto
+  - name: J142055
+  - name: J151035
+  - name: J212607
+  - name: J215537
+  - name: J110431
+  - name: J135533
+  - name: J113918
+  - name: Unkah
+  - name: UEPO-D
+  - name: GDEW
+  - name: RRWI
+
+connections:
+  - left: J151909
+    leftName: from J151909
+    right: FO8M-2
+    rightName: to FO8M-2
+  - left: FO8M-2
+    leftName: from FO8M-2 to Jita
+    right: Jita
+    rightName: to Jita
+  - left: FO8M-2
+    leftName: from FO8M-2 to Amarr
+    right: Amarr
+    rightName: from Amarr
+  - left: J151909
+    leftName: from J151909 to J165205
+    right: J165205
+    rightName: from J165205 to J151909
+  - left: J105433
+    leftName: from J105433 to J165205
+    right: J165205
+    rightName: from J165205 to J105433
+  - left: J151538
+    leftName: from J151538 to J105433
+    right: J105433
+    rightName: from J105433 to J151538
+  - left: J151538
+    leftName: from J151538 to Oto
+    right: Oto
+    rightName: from Oto to J151538
+  - left: Oto
+    leftName: from Oto to J142055
+    right: J142055
+    rightName: from J142055 to Oto
+  - left: Oto
+    leftName: from Oto to J110431
+    right: J110431
+    rightName: from J110431 to Oto
+  - left: J142055
+    leftName: from J142055 to J151035
+    right: J151035
+    rightName: from J151035 to J142055
+  - left: J142055
+    leftName: from J142055 to J212607
+    right: J212607
+    rightName: from J212607 to J142055
+  - left: J142055
+    leftName: from J142055 to J215537
+    right: J215537
+    rightName: from J215537 to J142055
+  - left: J135533
+    leftName: from J135533 to J151538
+    right: J151538
+    rightName: from J151538 to J135533
+  - left: J165205
+    leftName: from J165205 to J113918
+    right: J113918
+    rightName: from J113918 to J165205
+  - left: J165205
+    leftName: from J165205 to UEPO-D
+    right: UEPO-D
+    rightName: from UEPO-D to J165205
+  - left: Unkah
+    leftName: from Unkah to J113918
+    right: J113918
+    rightName: from J113918 to Unkah
+  - left: Oto
+    leftName: from Oto to RRWI
+    right: RRWI
+    rightName: from RRWI to Oto
+  - left: GDEW
+    leftName: from GDEW to Oto
+    right: Oto
+    rightName: from Oto to GDEW

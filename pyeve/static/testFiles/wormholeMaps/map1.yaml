@@ -1,0 +1,45 @@
+---
+                 +--------------+
+        +--------+              +-----------+
+        |        |     J1       |           |
+        |        |              <-+         |ABC-005
+ ABC-001|        +^-------------+ |         |
+        |         |               |ABC-006  |
+        |         |ABC-002        |         |
+        |         |               |         |
+     +--v---------+-+           +-+---------v---+
+     |              |           |               |
+     |      J2      |           |     J4        |
+     |              |           |               |
+     +--+-------^---+           +---------------+
+        |       |
+ABC-003 |       |ABC-004
+        |       |
+     +--v-------+---+
+     |              |
+     |    J3        |
+     |              |
+     +--------------+
+
+---
+systems:
+  - name: "J1"
+  - name: "J2"
+  - name: "J3"
+  - name: "J4"
+
+connections:
+  - left: "J1"
+    leftName: "ABC-001"
+    right: "J2"
+    rightName: "ABC-002"
+
+  - left: "J2"
+    leftName: "ABC-003"
+    right: "J3"
+    rightName: "ABC-004"
+
+  - left: "J1"
+    leftName: "ABC-005"
+    right: "J4"
+    rightName: "ABC-006"

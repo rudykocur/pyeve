@@ -81,3 +81,38 @@ table {
 #lootModal form label {
     white-space: nowrap;
 }
+
+
+#wormholeMap {
+    font-family: monospace;
+}
+
+#wormholeMap .whRow {
+
+}
+
+#wormholeMap .whSlot {
+    display: inline-block;
+    margin: 35px 15px;
+    border: solid 1px gray;
+
+    vertical-align: top;
+
+    width: 100px;
+    /*height: 55px;*/
+
+    padding: 5px;
+}
+
+#wormholeMap .emptySlot {
+    border: none;
+}
+
+#wormholeMap .connectorLabel {
+    border: solid 1px gray;
+    background: white;
+    color: black;
+    padding: 2px;
+
+    font-size: 10px;
+}
